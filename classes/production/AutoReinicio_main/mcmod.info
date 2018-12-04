@@ -1,0 +1,16 @@
+[
+{
+  "modid": "autoreinicio",
+  "name": "Auto Reinicio",
+  "description": "Reinicia o servidor de x em x minutos",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["FeldmannJR"],
+  "credits": "Em primeiro lugar satanas",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
