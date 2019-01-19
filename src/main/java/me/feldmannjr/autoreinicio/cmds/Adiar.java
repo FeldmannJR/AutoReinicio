@@ -42,7 +42,7 @@ public class Adiar extends CommandBase {
     }
 
     @Override
-    public int getRequiredPermissionLevel() {
-        return 2;
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+        return true;
     }
 }

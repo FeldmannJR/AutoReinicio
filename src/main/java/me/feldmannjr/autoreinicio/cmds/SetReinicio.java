@@ -1,7 +1,6 @@
 package me.feldmannjr.autoreinicio.cmds;
 
 import me.feldmannjr.autoreinicio.AutoReinicioMod;
-import me.feldmannjr.autoreinicio.Utils;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -11,27 +10,38 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
-import static me.feldmannjr.autoreinicio.AutoReinicioMod.tempoReiniciar;
-
-public class Reinicio extends CommandBase {
+public class SetReinicio extends CommandBase {
     @Override
     public String getName() {
-        return "reinicio";
+        return "setreinicio";
     }
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "reinicio";
+        return getName() + " <minutos>";
     }
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         World world = sender.getEntityWorld();
         if (!world.isRemote) {
-            TextComponentString msg = new TextComponentString("Servidor irá reiniciar em " + Utils.millisToString(tempoReiniciar * 50L) + " !");
-            msg.getStyle().setColor(TextFormatting.RED);
-            sender.sendMessage(msg);
 
+            if (args.length != 1) {
+                throw new WrongUsageException(getUsage(sender), new Object[0]);
+            }
+            int minutos;
+            try {
+                minutos = Integer.valueOf(args[0]);
+            } catch (NumberFormatException ex) {
+                throw new WrongUsageException(getUsage(sender), new Object[0]);
+            }
+            if (minutos <= 0) {
+                throw new WrongUsageException(getUsage(sender), new Object[0]);
+            }
+            AutoReinicioMod.tempoReiniciar = 20L * 60L * minutos;
+            TextComponentString msg = new TextComponentString("Reinicio setado para acontecer em " + minutos + " minutos!");
+            msg.getStyle().setColor(TextFormatting.AQUA);
+            sender.sendMessage(msg);
         }
     }
 

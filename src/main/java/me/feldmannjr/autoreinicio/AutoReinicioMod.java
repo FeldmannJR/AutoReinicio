@@ -1,8 +1,10 @@
 package me.feldmannjr.autoreinicio;
 
-import me.feldmannjr.autoreinicio.cmds.Adiar;
-import me.feldmannjr.autoreinicio.cmds.Reinicio;
+import me.feldmannjr.autoreinicio.cmds.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.network.play.server.SPacketChat;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
@@ -10,6 +12,7 @@ import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentUtils;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -29,12 +32,12 @@ import static me.feldmannjr.autoreinicio.AutoReinicioMod.MODID;
 import static me.feldmannjr.autoreinicio.AutoReinicioMod.NAME;
 import static me.feldmannjr.autoreinicio.AutoReinicioMod.VERSION;
 
-@Mod(modid = MODID, name = NAME, version = VERSION)
+@Mod(modid = MODID, name = NAME, version = VERSION, acceptableRemoteVersions = "*")
 public class AutoReinicioMod {
 
     public static final String MODID = "autoreinicio";
     public static final String NAME = "Auto Reinicio";
-    public static final String VERSION = "0.1";
+    public static final String VERSION = "0.3";
 
 
     private static List<Long> alertar = Arrays.asList(
@@ -53,7 +56,6 @@ public class AutoReinicioMod {
     public static long tempoReiniciar = -1;
 
 
-
     private static Logger logger;
 
     @Mod.EventHandler
@@ -69,10 +71,14 @@ public class AutoReinicioMod {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
+
     @Mod.EventHandler
     public void server(FMLServerStartingEvent ev) {
         ev.registerServerCommand(new Adiar());
         ev.registerServerCommand(new Reinicio());
+        ev.registerServerCommand(new Reiniciar());
+        ev.registerServerCommand(new LimparChao());
+        ev.registerServerCommand(new SetReinicio());
 
     }
 
@@ -84,6 +90,9 @@ public class AutoReinicioMod {
                 tempoReiniciar = -1;
                 FMLCommonHandler.instance().getMinecraftServerInstance().initiateShutdown();
                 return;
+            }
+            if (tempoReiniciar == 20 * 10) {
+                clearGroundItems();
             }
             if (alertar.contains(tempoReiniciar)) {
                 TextComponentString msg = new TextComponentString("O servidor irá reiniciar em ");
@@ -101,6 +110,21 @@ public class AutoReinicioMod {
         }
     }
 
+
+    public static void clearGroundItems() {
+        WorldServer[] worlds = FMLCommonHandler.instance().getMinecraftServerInstance().worlds;
+        for (WorldServer world : worlds) {
+            for (Entity entity : world.loadedEntityList) {
+                if (entity instanceof EntityItem) {
+                    world.removeEntity(entity);
+                }
+            }
+        }
+        TextComponentString msg = new TextComponentString("Limpando itens do chão!!");
+        msg.getStyle().setColor(TextFormatting.LIGHT_PURPLE);
+        FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendMessage(msg);
+
+    }
 
     public static void setTempoReiniciar(int minutos) {
         AutoReinicioMod.tempoReiniciar = minutos * 20L * 60L;
